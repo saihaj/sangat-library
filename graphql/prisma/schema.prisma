@@ -1,0 +1,132 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Author {
+  id String @id @default(cuid())
+
+  name  String
+  // author can have multiple books
+  books Book[]
+
+  // the way these libraries are strucutred it is hard to track a unique author over different libs
+  // so we relate a auhor to a library - kinda like auhtor is a member of library
+  // This can be use to track OG location of book
+  library   Library @relation(fields: [libraryId], references: [id])
+  libraryId String
+
+  createdAt DateTime @default(now())
+  upadtedAt DateTime @updatedAt
+}
+
+model Library {
+  id String @id @default(cuid())
+
+  name       String
+  email      String
+  phone      String
+  // library can have many people who can manage it
+  management User[]
+  // Library has many books
+  books      Book[]
+  // Books boorowed
+  borrowers  Issue[]
+  // Library has many authors who wrote books
+  authors    Author[]
+
+  // Addresss info
+  street     String
+  additional String?
+  city       String
+  country    String
+  zip        String
+
+  // TODO: to integrate with Google Maps API. We can store the places id and then use it to geocode
+  // placesId   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id String @id @default(cuid())
+
+  // User contact info
+  name  String
+  email String
+  phone String
+
+  // Addresss info
+  street     String
+  additional String?
+  city       String
+  country    String
+  zip        String
+
+  // User can manage many libraries
+  managing Library[]
+  // user can borrow multiple books
+  borrowed Issue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Issue {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  dueDate   DateTime
+  // book that was issued
+  book      Book     @relation(fields: [bookId], references: [id])
+  bookId    String
+  // user who got the book
+  borrower  User     @relation(fields: [userId], references: [id])
+  userId    String
+  // library the book was borrowed from
+  location  Library  @relation(fields: [libraryId], references: [id])
+  libraryId String
+}
+
+model Genre {
+  id String @id @default(cuid())
+
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Genre can have many books
+  books     Book[]
+}
+
+model Book {
+  id String @id @default(cuid())
+
+  title       String
+  description String?
+  // not all books will have isbn
+  isbn        String?
+  // this is usually an internal tracking number for libraries if not we generate one.
+  identifier  String  @default(cuid())
+
+  // Book can have many generes
+  genre Genre[]
+
+  // Book has one author
+  author   Author @relation(fields: [authorId], references: [id])
+  authorId String
+
+  // A book is only on one library - this is current location for book
+  // if book was to go in some other library
+  // Author's library will tell us OG location of book
+  location  Library @relation(fields: [libraryId], references: [id])
+  libraryId String
+  // Book is issued to a user.
+  issuedTo  Issue[]
+}

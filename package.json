@@ -1,0 +1,23 @@
+{
+  "name": "sangat-library",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "mobile",
+      "graphql"
+    ],
+    "nohoist": [
+      "**/relay-compiler-language-typescript/**"
+    ]
+  },
+  "scripts": {
+    "dev:graphql": "yarn workspace graphql-server start",
+    "format": "prettier . --write",
+    "ios": "expo start --ios",
+    "android": "expo start --android"
+  },
+  "author": "Saihajpreet Singh <saihajpreet.singh@gmail.com> (https://github.com/saihaj)",
+  "devDependencies": {
+    "prettier": "^2.4.1"
+  }
+}

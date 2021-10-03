@@ -1,0 +1,30 @@
+{
+  "name": "graphql-server",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Saihajpreet Singh <saihajpreet.singh@gmail.com> (https://github.com/saihaj)",
+  "scripts": {
+    "start": "vercel dev",
+    "start:db": "cd db && docker-compose up -d",
+    "stop:db": "cd db && docker-compose stop",
+    "schema": "ts-node scripts/generate-schema.ts"
+  },
+  "dependencies": {
+    "@devoxa/prisma-relay-cursor-connection": "^2.0.3",
+    "@envelop/core": "^1.2.0",
+    "@graphql-ez/plugin-graphiql": "^0.10.1",
+    "@graphql-ez/vercel": "^0.1.1",
+    "@prisma/client": "^3.1.1",
+    "graphql": "^15.6.0",
+    "graphql-ez": "^0.13.1",
+    "graphql-relay": "^0.9.0",
+    "graphql-scalars": "^1.10.1",
+    "vercel": "^23.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.10.1",
+    "@vercel/node": "^1.12.1",
+    "prisma": "^3.1.1",
+    "ts-node": "^10.2.1"
+  }
+}
