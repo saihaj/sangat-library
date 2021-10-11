@@ -4,8 +4,11 @@ import {
   GraphQLObjectType,
   GraphQLSchema,
 } from 'graphql'
-import { connectionArgs, fromGlobalId } from 'graphql-relay'
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
+import {
+  connectionArgs,
+  connectionFromArray,
+  fromGlobalId,
+} from 'graphql-relay'
 import { BookConnection, BookType } from './types/book'
 import { TypeNames } from './types/shared'
 import { LibraryConnection, LibraryType } from './types/library'
@@ -35,11 +38,8 @@ const QueryType = new GraphQLObjectType<any, GraphQLContext>({
       type: BookConnection,
       args: connectionArgs,
       resolve: async (_, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) => prisma.book.findMany({ ...args }),
-          () => prisma.book.count(),
-          args,
-        )
+        const books = await prisma.book.findMany()
+        return connectionFromArray(books, args)
       },
     },
     book: {
@@ -54,11 +54,8 @@ const QueryType = new GraphQLObjectType<any, GraphQLContext>({
       type: AuthorConnection,
       args: connectionArgs,
       resolve: async (_, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) => prisma.author.findMany({ ...args }),
-          () => prisma.author.count(),
-          args,
-        )
+        const authors = await prisma.author.findMany()
+        return connectionFromArray(authors, args)
       },
     },
     author: {
@@ -73,11 +70,8 @@ const QueryType = new GraphQLObjectType<any, GraphQLContext>({
       type: LibraryConnection,
       args: connectionArgs,
       resolve: async (_, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) => prisma.library.findMany({ ...args }),
-          () => prisma.library.count(),
-          args,
-        )
+        const libraries = await prisma.library.findMany()
+        return connectionFromArray(libraries, args)
       },
     },
     library: {
@@ -92,11 +86,8 @@ const QueryType = new GraphQLObjectType<any, GraphQLContext>({
       type: GenreConnection,
       args: connectionArgs,
       resolve: async (_, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) => prisma.genre.findMany({ ...args }),
-          () => prisma.genre.count(),
-          args,
-        )
+        const genres = await prisma.genre.findMany()
+        return connectionFromArray(genres, args)
       },
     },
     genre: {

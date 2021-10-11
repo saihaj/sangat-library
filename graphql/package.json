@@ -10,7 +10,6 @@
     "schema": "ts-node scripts/generate-schema.ts"
   },
   "dependencies": {
-    "@devoxa/prisma-relay-cursor-connection": "^2.0.3",
     "@envelop/core": "^1.2.0",
     "@graphql-ez/plugin-graphiql": "^0.10.1",
     "@graphql-ez/vercel": "^0.1.1",

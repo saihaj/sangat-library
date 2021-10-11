@@ -1,9 +1,9 @@
 import { User } from '.prisma/client'
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
 import {
   connectionArgs,
   connectionDefinitions,
+  connectionFromArray,
   globalIdField,
 } from 'graphql-relay'
 import {
@@ -64,14 +64,11 @@ export const UserType = new GraphQLObjectType<any, GraphQLContext>({
       args: connectionArgs,
       description: 'Libraries managed by user',
       resolve: async (root: User, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) =>
-            prisma.user
-              .findFirst({ ...args, where: { id: root.id } })
-              .managing(),
-          () => prisma.library.count(),
-          args,
-        )
+        const managing = await prisma.user
+          .findFirst({ where: { id: root.id } })
+          .managing()
+
+        return connectionFromArray(managing, args)
       },
     },
   }),

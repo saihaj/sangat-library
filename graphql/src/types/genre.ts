@@ -1,9 +1,9 @@
 import { Genre } from '@prisma/client'
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
 import {
   connectionArgs,
   connectionDefinitions,
+  connectionFromArray,
   globalIdField,
 } from 'graphql-relay'
 import { GraphQLDateTime } from 'graphql-scalars'
@@ -35,12 +35,11 @@ export const GenreType = new GraphQLObjectType<any, GraphQLContext>({
       type: BookConnection,
       args: connectionArgs,
       resolve: async (root: Genre, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) =>
-            prisma.genre.findFirst({ ...args, where: { id: root.id } }).books(),
-          () => prisma.genre.count(),
-          args,
-        )
+        const books = await prisma.genre
+          .findFirst({ where: { id: root.id } })
+          .books()
+
+        return connectionFromArray(books, args)
       },
     },
   }),

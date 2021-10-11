@@ -1,9 +1,9 @@
 import { Library } from '@prisma/client'
-import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
 import {
   connectionArgs,
   connectionDefinitions,
+  connectionFromArray,
   globalIdField,
 } from 'graphql-relay'
 import {
@@ -62,14 +62,11 @@ export const LibraryType = new GraphQLObjectType<any, GraphQLContext>({
       args: connectionArgs,
       description: 'People managing the library',
       resolve: async (root: Library, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) =>
-            prisma.library
-              .findFirst({ ...args, where: { id: root.id } })
-              .management(),
-          () => prisma.user.count(),
-          args,
-        )
+        const management = await prisma.library
+          .findFirst({ where: { id: root.id } })
+          .management()
+
+        return connectionFromArray(management, args)
       },
     },
     books: {
@@ -77,14 +74,11 @@ export const LibraryType = new GraphQLObjectType<any, GraphQLContext>({
       args: connectionArgs,
       description: 'All available books in library',
       resolve: async (root: Library, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) =>
-            prisma.library
-              .findFirst({ ...args, where: { id: root.id } })
-              .books(),
-          () => prisma.book.count(),
-          args,
-        )
+        const books = await prisma.library
+          .findFirst({ where: { id: root.id } })
+          .books()
+
+        return connectionFromArray(books, args)
       },
     },
     borrowers: {
@@ -92,14 +86,11 @@ export const LibraryType = new GraphQLObjectType<any, GraphQLContext>({
       args: connectionArgs,
       description: 'Issued books',
       resolve: async (root: Library, args, { prisma }) => {
-        return await findManyCursorConnection(
-          (args) =>
-            prisma.library
-              .findFirst({ ...args, where: { id: root.id } })
-              .borrowers(),
-          () => prisma.issue.count(),
-          args,
-        )
+        const borrowers = await prisma.library
+          .findFirst({ where: { id: root.id } })
+          .borrowers()
+
+        return connectionFromArray(borrowers, args)
       },
     },
   }),
