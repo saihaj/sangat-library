@@ -10,7 +10,7 @@ type BooksProps = {
 }
 
 const Books = ({ books }: BooksProps) => {
-  const { data, isLoadingNext, refetch } = usePaginationFragment<
+  const { data, isLoadingNext, refetch, loadNext } = usePaginationFragment<
     BooksPaginationQuery,
     _
   >(
@@ -44,13 +44,7 @@ const Books = ({ books }: BooksProps) => {
         refreshing={isLoadingNext}
         progressViewOffset={0}
         onRefresh={() => refetch({}, { fetchPolicy: 'network-only' })}
-        // TODO: fetch more when the user scrolls to the bottom
-        // onEndReachedThreshold={2}
-        // onEndReached={() => {
-        //   if (hasNext && !isLoadingNext) {
-        //     loadNext(10)
-        //   }
-        // }}
+        onEndReached={() => loadNext(5)}
       />
     </Box>
   )
