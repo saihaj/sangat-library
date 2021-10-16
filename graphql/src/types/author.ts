@@ -1,17 +1,24 @@
 import { Author } from '@prisma/client'
-import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
+import {
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql'
 import {
   connectionArgs,
   connectionDefinitions,
   connectionFromArray,
+  fromGlobalId,
   globalIdField,
 } from 'graphql-relay'
 import { GraphQLDateTime } from 'graphql-scalars'
-import { BookConnection } from './book'
 import { GraphQLContext } from '../context'
 import { NodeInterface } from '../node'
-import { MetaNodeInterface, TypeNames } from './shared'
 import { LibraryType } from './library'
+import { BookConnection } from './book'
+import { MetaNodeInterface, TypeNames } from './shared'
 
 /**
  * ```graphql
@@ -73,3 +80,28 @@ const { connectionType } = connectionDefinitions({ nodeType: AuthorType })
  * ```
  */
 export const AuthorConnection = connectionType
+
+/**
+ * ```graphql
+ * authors(after: String, first: Int, before: String, last: Int): AuthorConnection
+ * author(id: ID!): Author
+ * ```
+ */
+export const rootResolvers: GraphQLFieldConfigMap<void, GraphQLContext> = {
+  authors: {
+    type: AuthorConnection,
+    args: connectionArgs,
+    resolve: async (_, args, { prisma }) => {
+      const authors = await prisma.author.findMany()
+      return connectionFromArray(authors, args)
+    },
+  },
+  author: {
+    type: AuthorType,
+    args: { id: { type: GraphQLNonNull(GraphQLID) } },
+    resolve: async (_, { id }, { prisma }) => {
+      const { id: authorId } = fromGlobalId(id)
+      return await prisma.author.findFirst({ where: { id: authorId } })
+    },
+  },
+}

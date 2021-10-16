@@ -1,9 +1,16 @@
 import { Library } from '@prisma/client'
-import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
+import {
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql'
 import {
   connectionArgs,
   connectionDefinitions,
   connectionFromArray,
+  fromGlobalId,
   globalIdField,
 } from 'graphql-relay'
 import {
@@ -112,3 +119,28 @@ const { connectionType } = connectionDefinitions({ nodeType: LibraryType })
  * ```
  */
 export const LibraryConnection = connectionType
+
+/**
+ * ```graphql
+ * libraries(after: String, first: Int, before: String, last: Int): LibraryConnection
+ * library(id: ID!): Library
+ * ```
+ */
+export const rootResolvers: GraphQLFieldConfigMap<void, GraphQLContext> = {
+  libraries: {
+    type: LibraryConnection,
+    args: connectionArgs,
+    resolve: async (_, args, { prisma }) => {
+      const libraries = await prisma.library.findMany()
+      return connectionFromArray(libraries, args)
+    },
+  },
+  library: {
+    type: LibraryType,
+    args: { id: { type: GraphQLNonNull(GraphQLID) } },
+    resolve: async (_, { id }, { prisma }) => {
+      const { id: libraryId } = fromGlobalId(id)
+      return await prisma.library.findFirst({ where: { id: libraryId } })
+    },
+  },
+}

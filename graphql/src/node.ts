@@ -1,6 +1,6 @@
 import { fromGlobalId, nodeDefinitions } from 'graphql-relay'
-import { GraphQLContext } from './context'
 import resolveType from './types/resolveType'
+import { GraphQLContext } from './context'
 
 const { nodeInterface, nodeField } = nodeDefinitions<GraphQLContext>(
   async (globalId) => {

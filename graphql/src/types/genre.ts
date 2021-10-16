@@ -1,9 +1,16 @@
 import { Genre } from '@prisma/client'
-import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
+import {
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql'
 import {
   connectionArgs,
   connectionDefinitions,
   connectionFromArray,
+  fromGlobalId,
   globalIdField,
 } from 'graphql-relay'
 import { GraphQLDateTime } from 'graphql-scalars'
@@ -61,3 +68,28 @@ const { connectionType } = connectionDefinitions({ nodeType: GenreType })
  * ```
  */
 export const GenreConnection = connectionType
+
+/**
+ * ```graphql
+ * genres(after: String, first: Int, before: String, last: Int): BookConnection
+ * genre(id: ID!): Book
+ * ```
+ */
+export const rootResolvers: GraphQLFieldConfigMap<void, GraphQLContext> = {
+  genres: {
+    type: GenreConnection,
+    args: connectionArgs,
+    resolve: async (_, args, { prisma }) => {
+      const genres = await prisma.genre.findMany()
+      return connectionFromArray(genres, args)
+    },
+  },
+  genre: {
+    type: GenreType,
+    args: { id: { type: GraphQLNonNull(GraphQLID) } },
+    resolve: async (_, { id }, { prisma }) => {
+      const { id: genreId } = fromGlobalId(id)
+      return await prisma.genre.findFirst({ where: { id: genreId } })
+    },
+  },
+}
